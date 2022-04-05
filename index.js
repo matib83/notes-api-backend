@@ -1,7 +1,10 @@
 const express = require('express')    //Importar el modulo http utilizando Common.JS
+const cors = require('cors')
+
 const app = express()
 const logger = require('./loggerMiddleware')
 
+app.use(cors()) //Permitimos que cualquier origen funcione en nuestra API
 app.use(express.json())
 
 app.use(logger)
@@ -95,7 +98,8 @@ app.use((request, response) => {
     })
 })
 
-const PORT = 3001                                   //puerto por donde escucha mi servidor
+const PORT = process.env.PORT || 3001                                   //puerto por donde escucha mi servidor
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)   //Como el servidor en Express se inicia de manera asincrona, 
 })                                                  //quiero ejecutar el console.log cuando se termine de levantar el servidor
