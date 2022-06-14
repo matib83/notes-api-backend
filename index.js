@@ -25,7 +25,9 @@ app.get('/', (request, response) => {        //Cuando nuestra aplicacion reciba 
 })
 
 app.get('/api/notes', (request, response) => {       //Cuando nuestra aplicacion reciba un request desde el path general
-    response.json(notes)                            //Me resuelve el content type, el status, etc
+    Note.find({}).then(notes => {
+        response.json(notes)                        //Me resuelve el content type, el status, etc
+    })
 })
 
 app.get('/api/notes/:id', (request, response) => {  //Así puedo recuperar parámetros dinámicos del path o URL
