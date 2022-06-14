@@ -60,20 +60,15 @@ app.post('/api/notes', (request, response) => {
         })
     }
 
-    const ids = notes.map(note => note.id)  //creo un array de objetos solo de los ID
-    const maxId = Math.max(...ids)        // Busco el maximo ID
+    const newNote = new Note({
+        content: note.content,
+        date: new Date().toISOString(),
+        important: typeof note.important !== 'undefined' ? note.important : false
+    })
 
-    const newNote = {
-        id: maxId + 1,
-        content: note.content,                //valor que viaja en el body del POST
-        important: typeof note.important !== 'undefined' ? note.important : false,
-        date: new Date().toISOString()
-    }
-
-    //notes = [...notes, newNote]
-    notes = notes.concat(newNote)
-
-    response.status(201).json(newNote)
+    newNote.save().then(saveNote => {
+        response.status(201).json(saveNote)
+    })
 })
 
 //Ejemplo de lo que es un MIDDLEWARE (entra cuando no se ejecuta ninguna ruta de arriba)
