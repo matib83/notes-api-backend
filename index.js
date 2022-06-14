@@ -30,7 +30,7 @@ app.get('/api/notes', (request, response) => {       //Cuando nuestra aplicacion
     })
 })
 
-app.get('/api/notes/:id', (request, response) => {  //Así puedo recuperar parámetros dinámicos del path o URL
+app.get('/api/notes/:id', (request, response, next) => {  //Así puedo recuperar parámetros dinámicos del path o URL
     const { id } = request.params                   // extraigo el ID del response (es un String)    
     console.log({ id })
 
@@ -42,9 +42,8 @@ app.get('/api/notes/:id', (request, response) => {  //Así puedo recuperar pará
             response.status(404).end()
         }
     }).catch(err => {
-        console.log(err.message)
-        response.status(400).end()
-    })
+        next(err)                   //Hacemos que vaya al siguiente Middleware cuando se ejecute este tipo de error
+    })                              // que sería por acceder a un lugar inválido y puede pasar en varios lugares
 })
 
 // Recordar que por la barra de direcciones solo se pueden hacer GET para probar, 
@@ -77,12 +76,18 @@ app.post('/api/notes', (request, response) => {
 })
 
 //Ejemplo de lo que es un MIDDLEWARE (entra cuando no se ejecuta ninguna ruta de arriba)
-app.use((request, response) => {
-    console.log('He entrado aqui')
+app.use((error, request, response, next) => {
+    console.log('He entrado aqui:')
     console.log(request.path)       //Puedo saBER QUE PATH ME ESTAN PIDIENDO ACCEDER
-    response.status(404).json({
-        error: 'Not found'
-    })
+    console.error(error)            // esto normalmente se envía a un servicio o sitio para saber que ocurrio algo
+    console.log(error.name)
+    if (error.name === 'CastError') {
+        response.status(400).json({
+            error: 'Solicitud incorrecta'      // error por una solicitud desconocida
+        }).end()
+    } else {
+        response.status(500).end()  //Error de nuestro servidor
+    }
 })
 
 const PORT = process.env.PORT                        //puerto por donde escucha mi servidor
