@@ -1,5 +1,5 @@
+require('dotenv').config()
 require('./mongo')
-
 
 const express = require('express')    //Importar el modulo http utilizando Common.JS
 const app = express()
@@ -85,7 +85,7 @@ app.use((request, response) => {
     })
 })
 
-const PORT = process.env.PORT || 3001                                   //puerto por donde escucha mi servidor
+const PORT = process.env.PORT                        //puerto por donde escucha mi servidor
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)   //Como el servidor en Express se inicia de manera asincrona, 
