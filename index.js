@@ -1,7 +1,9 @@
 const express = require('express')    //Importar el modulo http utilizando Common.JS
+const app = express()
 const cors = require('cors')
 
-const app = express()
+
+
 const logger = require('./loggerMiddleware')
 
 app.use(cors()) //Permitimos que cualquier origen funcione en nuestra API
