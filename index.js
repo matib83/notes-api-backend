@@ -31,15 +31,20 @@ app.get('/api/notes', (request, response) => {       //Cuando nuestra aplicacion
 })
 
 app.get('/api/notes/:id', (request, response) => {  //Así puedo recuperar parámetros dinámicos del path o URL
-    const id = Number(request.params.id)                    // Lo que recibe es STRING y debo convertirlo a entero
+    const { id } = request.params                   // extraigo el ID del response (es un String)    
     console.log({ id })
-    const note = notes.find(note => note.id === id)
-    console.log({ note })
-    if (note) {
-        response.json(note)
-    } else {
-        response.status(404).end()
-    }
+
+    Note.findById(id).then(note => {
+        console.log({ note })
+        if (note) {
+            return response.json(note)
+        } else {
+            response.status(404).end()
+        }
+    }).catch(err => {
+        console.log(err.message)
+        response.status(400).end()
+    })
 })
 
 // Recordar que por la barra de direcciones solo se pueden hacer GET para probar, 
