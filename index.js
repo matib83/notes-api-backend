@@ -5,6 +5,8 @@ const express = require('express')    //Importar el modulo http utilizando Commo
 const app = express()
 const cors = require('cors')
 const Note = require('./models/Note')
+const notFound = require('./middleware/notFound.js')
+const handleErrors = require('./middleware/handleErrors.js')
 
 const logger = require('./loggerMiddleware')
 
@@ -12,8 +14,6 @@ app.use(cors()) //Permitimos que cualquier origen funcione en nuestra API
 app.use(express.json())
 
 app.use(logger)
-
-let notes = []
 
 // const app = http.createServer((request, response) => {      //Callback, funcion que se ejecuta cada vez que
 //     response.writeHead(200, { 'Content-Type':'application/json'}) //le llegue un request (petición al servidor)
@@ -46,13 +46,30 @@ app.get('/api/notes/:id', (request, response, next) => {  //Así puedo recuperar
     })                              // que sería por acceder a un lugar inválido y puede pasar en varios lugares
 })
 
+//Ahora realizamos la peticion de PUT para modificar contenido
+app.put('/api/notes/:id', (request, response, next) => {
+    const { id } = request.params
+    const note = request.body
+
+    const newNoteInfo = {
+        content: note.content,
+        important: note.important
+    }
+
+    Note.findByIdAndUpdate(id, newNoteInfo, { new: true })
+        .then(result => {
+            response.json(result).status(204).end()
+        })
+})
+
 // Recordar que por la barra de direcciones solo se pueden hacer GET para probar, 
 // en el caso que necesite realizar otras acciones debo utilizar las herramientas
 // como POSTMAN o INSOMNIA
-app.delete('/api/notes/:id', (request, response) => {
-    const id = Number(request.params.id)
-    notes = notes.filter(note => note.id !== id)
-    response.status(204).end()
+app.delete('/api/notes/:id', (request, response, next) => {
+    const { id } = request.params
+    Note.findByIdAndRemove(id).then(result => {
+        response.status(204).end()
+    }).catch(error => next(error))
 })
 
 app.post('/api/notes', (request, response) => {
@@ -75,20 +92,10 @@ app.post('/api/notes', (request, response) => {
     })
 })
 
+app.use(notFound)
+
 //Ejemplo de lo que es un MIDDLEWARE (entra cuando no se ejecuta ninguna ruta de arriba)
-app.use((error, request, response, next) => {
-    console.log('He entrado aqui:')
-    console.log(request.path)       //Puedo saBER QUE PATH ME ESTAN PIDIENDO ACCEDER
-    console.error(error)            // esto normalmente se envía a un servicio o sitio para saber que ocurrio algo
-    console.log(error.name)
-    if (error.name === 'CastError') {
-        response.status(400).json({
-            error: 'Solicitud incorrecta'      // error por una solicitud desconocida
-        }).end()
-    } else {
-        response.status(500).end()  //Error de nuestro servidor
-    }
-})
+app.use(handleErrors)
 
 const PORT = process.env.PORT                        //puerto por donde escucha mi servidor
 
