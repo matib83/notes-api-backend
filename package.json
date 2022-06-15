@@ -13,6 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sentry/node": "^7.1.1",
+    "@sentry/tracing": "^7.1.1",
     "cors": "2.8.5",
     "dotenv": "16.0.1",
     "express": "4.17.2",

@@ -1,6 +1,8 @@
 require('dotenv').config()
 require('./mongo')
 
+const Sentry = require('@sentry/node');
+const Tracing = require("@sentry/tracing");
 const express = require('express')    //Importar el modulo http utilizando Common.JS
 const app = express()
 const cors = require('cors')
@@ -12,6 +14,27 @@ const logger = require('./loggerMiddleware')
 
 app.use(cors()) //Permitimos que cualquier origen funcione en nuestra API
 app.use(express.json())
+
+Sentry.init({
+    dsn: "https://7cd13f8b01c64aa88da6976e619b57cb@o1289194.ingest.sentry.io/6507250",
+    integrations: [
+        // enable HTTP calls tracing
+        new Sentry.Integrations.Http({ tracing: true }),
+        // enable Express.js middleware tracing
+        new Tracing.Integrations.Express({ app }),
+    ],
+
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+});
+
+// RequestHandler creates a separate execution context using domains, so that every
+// transaction/span/breadcrumb is attached to its own Hub instance
+app.use(Sentry.Handlers.requestHandler());
+// TracingHandler creates a trace for every incoming request
+app.use(Sentry.Handlers.tracingHandler());
 
 app.use(logger)
 
@@ -34,17 +57,17 @@ app.get('/api/notes/:id', (request, response, next) => {  //Así puedo recuperar
     const { id } = request.params                   // extraigo el ID del response (es un String)    
     console.log({ id })
 
-    Note.findById(id).then(note => {
-        console.log({ note })
-        if (note) {
-            return response.json(note)
-        } else {
-            response.status(404).end()
-        }
-    }).catch(err => {
-        next(err)                   //Hacemos que vaya al siguiente Middleware cuando se ejecute este tipo de error
-    })                              // que sería por acceder a un lugar inválido y puede pasar en varios lugares
-})
+    Note.findById(id)
+        .then(note => {
+            console.log({ note })
+            if (note) {
+                return response.json(note)
+            } else {
+                response.status(404).end()
+            }
+        })
+        .catch(err => next(err))                   //Hacemos que vaya al siguiente Middleware cuando se ejecute este tipo de error               
+})                                               // que sería por acceder a un lugar inválido y puede pasar en varios lugares
 
 //Ahora realizamos la peticion de PUT para modificar contenido
 app.put('/api/notes/:id', (request, response, next) => {
@@ -60,6 +83,7 @@ app.put('/api/notes/:id', (request, response, next) => {
         .then(result => {
             response.json(result).status(204).end()
         })
+        .catch(err => next(err))
 })
 
 // Recordar que por la barra de direcciones solo se pueden hacer GET para probar, 
@@ -67,12 +91,13 @@ app.put('/api/notes/:id', (request, response, next) => {
 // como POSTMAN o INSOMNIA
 app.delete('/api/notes/:id', (request, response, next) => {
     const { id } = request.params
-    Note.findByIdAndRemove(id).then(result => {
-        response.status(204).end()
-    }).catch(error => next(error))
+
+    Note.findByIdAndDelete(id)
+        .then(() => response.status(204).end())
+        .catch(error => next(error))
 })
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/notes', (request, response, next) => {
     const note = request.body
 
     if (!note || !note.content) {
@@ -89,10 +114,13 @@ app.post('/api/notes', (request, response) => {
 
     newNote.save().then(saveNote => {
         response.status(201).json(saveNote)
-    })
+    }).catch(err => next(err))
 })
 
 app.use(notFound)
+
+// The error handler must be before any other error middleware and after all controllers
+app.use(Sentry.Handlers.errorHandler());
 
 //Ejemplo de lo que es un MIDDLEWARE (entra cuando no se ejecuta ninguna ruta de arriba)
 app.use(handleErrors)
