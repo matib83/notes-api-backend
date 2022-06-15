@@ -14,6 +14,8 @@ const logger = require('./loggerMiddleware')
 
 app.use(cors()) //Permitimos que cualquier origen funcione en nuestra API
 app.use(express.json())
+app.use(express.static('images'))
+
 
 Sentry.init({
     dsn: "https://7cd13f8b01c64aa88da6976e619b57cb@o1289194.ingest.sentry.io/6507250",
@@ -60,13 +62,10 @@ app.get('/api/notes/:id', (request, response, next) => {  //Así puedo recuperar
     Note.findById(id)
         .then(note => {
             console.log({ note })
-            if (note) {
-                return response.json(note)
-            } else {
-                response.status(404).end()
-            }
+            if (note) return response.json(note)
+            response.status(404).end()
         })
-        .catch(err => next(err))                   //Hacemos que vaya al siguiente Middleware cuando se ejecute este tipo de error               
+        .catch(next)                   //Hacemos que vaya al siguiente Middleware cuando se ejecute este tipo de error               
 })                                               // que sería por acceder a un lugar inválido y puede pasar en varios lugares
 
 //Ahora realizamos la peticion de PUT para modificar contenido
@@ -83,7 +82,7 @@ app.put('/api/notes/:id', (request, response, next) => {
         .then(result => {
             response.json(result).status(204).end()
         })
-        .catch(err => next(err))
+        .catch(next)
 })
 
 // Recordar que por la barra de direcciones solo se pueden hacer GET para probar, 
@@ -94,7 +93,7 @@ app.delete('/api/notes/:id', (request, response, next) => {
 
     Note.findByIdAndDelete(id)
         .then(() => response.status(204).end())
-        .catch(error => next(error))
+        .catch(next)
 })
 
 app.post('/api/notes', (request, response, next) => {
@@ -114,7 +113,7 @@ app.post('/api/notes', (request, response, next) => {
 
     newNote.save().then(saveNote => {
         response.status(201).json(saveNote)
-    }).catch(err => next(err))
+    }).catch(next)
 })
 
 app.use(notFound)
