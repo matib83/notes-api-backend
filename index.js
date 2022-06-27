@@ -87,7 +87,7 @@ app.put('/api/notes/:id', (request, response, next) => {
 
 // Recordar que por la barra de direcciones solo se pueden hacer GET para probar, 
 // en el caso que necesite realizar otras acciones debo utilizar las herramientas
-// como POSTMAN o INSOMNIA
+// como POSTMAN, INSOMNIA o REST de Visual Studio Code (hay que instalar aquí este último)
 app.delete('/api/notes/:id', (request, response, next) => {
     const { id } = request.params
 
