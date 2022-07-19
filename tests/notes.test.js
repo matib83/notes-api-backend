@@ -26,7 +26,7 @@ beforeEach(async () => {
   await note1.save()
 
   const note2 = new Note(initialNotes[1])
-  await note1.save()
+  await note2.save()
 })
 
 // Como el test es asíncrono, debo hacer el famoso async, await: lo que le informo a node, que test se ejecute
@@ -40,7 +40,7 @@ test('notes are returned as json', async () => {
 
 test('there are two notes', async () => {
   const response = await api.get('/api/notes')
-  expect(response.body).toHaveLength(1)
+  expect(response.body).toHaveLength(2)
 })
 
 afterAll(() => {
