@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
     "lint": "eslint .",
-    "start": "node index.js",
-    "test": "jest --verbose"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "test": "cross-env NODE_ENV=test jest --verbose --silent",
+    "test:watch": "npm run test -- --watch"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
     "@sentry/node": "7.1.1",
     "@sentry/tracing": "7.1.1",
     "cors": "2.8.5",
+    "cross-env": "7.0.3",
     "dotenv": "16.0.1",
     "express": "4.17.2",
     "mongoose": "6.3.5"
@@ -23,7 +25,8 @@
   "devDependencies": {
     "jest": "28.1.2",
     "nodemon": "2.0.15",
-    "standard": "16.0.4"
+    "standard": "16.0.4",
+    "supertest": "6.2.4"
   },
   "eslintConfig": {
     "extends": "./node_modules/standard/eslintrc.json",

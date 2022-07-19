@@ -125,8 +125,8 @@ app.use(Sentry.Handlers.errorHandler());
 app.use(handleErrors)
 
 const PORT = process.env.PORT                        //puerto por donde escucha mi servidor
-
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)   //Como el servidor en Express se inicia de manera asincrona, 
 })                                                  //quiero ejecutar el console.log cuando se termine de levantar el servidor
 
+module.exports = { app, server }
