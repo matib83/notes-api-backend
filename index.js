@@ -49,10 +49,10 @@ app.get('/', (request, response) => {        //Cuando nuestra aplicacion reciba 
     response.send('<h1>Hello Word<h1>')
 })
 
-app.get('/api/notes', (request, response) => {       //Cuando nuestra aplicacion reciba un request desde el path general
-    Note.find({}).then(notes => {
-        response.json(notes)                        //Me resuelve el content type, el status, etc
-    })
+//cambio el metodo de promesas por async, await
+app.get('/api/notes', async (request, response) => {       //Cuando nuestra aplicacion reciba un request desde el path general
+    const notes = await Note.find({})
+    response.json(notes)                        //Me resuelve el content type, el status, etc
 })
 
 app.get('/api/notes/:id', (request, response, next) => {  //Así puedo recuperar parámetros dinámicos del path o URL
@@ -96,7 +96,8 @@ app.delete('/api/notes/:id', (request, response, next) => {
         .catch(next)
 })
 
-app.post('/api/notes', (request, response, next) => {
+//cambio el metodo de promesas por async, await
+app.post('/api/notes', async (request, response, next) => {
     const note = request.body
 
     if (!note || !note.content) {
@@ -111,9 +112,18 @@ app.post('/api/notes', (request, response, next) => {
         important: typeof note.important !== 'undefined' ? note.important : false
     })
 
-    newNote.save().then(saveNote => {
+    // ******ANTES CON PROMESAS*******
+    // newNote.save().then(saveNote => {
+    //     response.status(201).json(saveNote)
+    // }).catch(next)
+
+    // AHORA CON ASYNC-AWAIT
+    try {
+        const saveNote = await newNote.save()
         response.status(201).json(saveNote)
-    }).catch(next)
+    } catch (error) {
+        next(error)
+    }
 })
 
 app.use(notFound)
