@@ -88,12 +88,15 @@ app.put('/api/notes/:id', (request, response, next) => {
 // Recordar que por la barra de direcciones solo se pueden hacer GET para probar, 
 // en el caso que necesite realizar otras acciones debo utilizar las herramientas
 // como POSTMAN, INSOMNIA o REST de Visual Studio Code (hay que instalar aquí este último)
-app.delete('/api/notes/:id', (request, response, next) => {
+app.delete('/api/notes/:id', async (request, response, next) => {
     const { id } = request.params
+    await Note.findByIdAndDelete(id)
+    response.status(204).end()
 
-    Note.findByIdAndDelete(id)
-        .then(() => response.status(204).end())
-        .catch(next)
+    // Antes utilizando promesas
+    // Note.findByIdAndDelete(id)
+    //     .then(() => response.status(204).end())
+    //     .catch(next)
 })
 
 //cambio el metodo de promesas por async, await
