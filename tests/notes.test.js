@@ -7,8 +7,6 @@ const { api, initialNotes, getAllContentFromNotes } = require('./helpers')
 
 beforeEach(async () => {
   await Note.deleteMany({})
-  console.log('beaforeEach')
-
   // Parallel (puedo tener errores en el test que controla la posicion de una nota, ya que no se puede asegurar
   // que la nota se agregue en el orden que yo lo defino en helpers: initialNotes, ya que se hacen en paralelo)
   /* const notesObjects = initialNotes.map(note => new Note(note))
@@ -22,66 +20,71 @@ beforeEach(async () => {
   }
 })
 
-// Como el test es asíncrono, debo hacer el famoso async, await: lo que le informo a node, que test se ejecute
-// pero que espere a que termine api para responder
-test('notes are returned as json', async () => {
-  console.log('first test')
-  await api
-    .get('/api/notes')
-    .expect(200)
-    .expect('Content-type', /application\/json/)
+describe('GET all notes', () => {
+  // Como el test es asíncrono, debo hacer el famoso async, await: lo que le informo a node, que test se ejecute
+  // pero que espere a que termine api para responder
+  test('notes are returned as json', async () => {
+    await api
+      .get('/api/notes')
+      .expect(200)
+      .expect('Content-type', /application\/json/)
+  })
+
+  test('there are two notes', async () => {
+    const response = await api.get('/api/notes')
+
+    expect(response.body).toHaveLength(initialNotes.length)
+  })
+
+  test('The first note is about learning', async () => {
+    const response = await api.get('/api/notes')
+
+    expect(response.body[0].content).toBe('Aprendiendo Fullstack JS')
+  })
+
+  test('Some notes content is about midudev', async () => {
+    const { contents } = await getAllContentFromNotes()
+
+    expect(contents).toContain('Sígueme en https://midu.tube')
+  })
 })
 
-test('there are two notes', async () => {
-  const response = await api.get('/api/notes')
+describe('create a note', () => {
+  test('is possible with a valid note', async () => {
+    const newNote = {
+      content: 'Proximamente async/await',
+      important: true
+    }
 
-  expect(response.body).toHaveLength(initialNotes.length)
+    await api
+      .post('/api/notes')
+      .send(newNote)
+      .expect(201)
+      .expect('Content-type', /application\/json/)
+
+    const { contents, response } = await getAllContentFromNotes()
+
+    expect(response.body).toHaveLength(initialNotes.length + 1)
+    expect(contents).toContain(newNote.content)
+  })
+
+  test('is not possible with an invalid note', async () => {
+    const newNote = {
+      important: true
+    }
+
+    await api
+      .post('/api/notes')
+      .send(newNote)
+      .expect(400)
+
+    const response = await api.get('/api/notes')
+
+    expect(response.body).toHaveLength(initialNotes.length)
+  })
 })
 
-test('The first note is about learning', async () => {
-  const response = await api.get('/api/notes')
 
-  expect(response.body[0].content).toBe('Aprendiendo Fullstack JS')
-})
-
-test('Some notes content is about midudev', async () => {
-  const { contents } = await getAllContentFromNotes()
-
-  expect(contents).toContain('Sígueme en https://midu.tube')
-})
-
-test('a valid note can be added', async () => {
-  const newNote = {
-    content: 'Proximamente async/await',
-    important: true
-  }
-
-  await api
-    .post('/api/notes')
-    .send(newNote)
-    .expect(201)
-    .expect('Content-type', /application\/json/)
-
-  const { contents, response } = await getAllContentFromNotes()
-
-  expect(response.body).toHaveLength(initialNotes.length + 1)
-  expect(contents).toContain(newNote.content)
-})
-
-test('note without content is not added', async () => {
-  const newNote = {
-    important: true
-  }
-
-  await api
-    .post('/api/notes')
-    .send(newNote)
-    .expect(400)
-
-  const response = await api.get('/api/notes')
-
-  expect(response.body).toHaveLength(initialNotes.length)
-})
 
 test('a note can be deleted', async () => {
   const { response: firstResponse } = await getAllContentFromNotes()
