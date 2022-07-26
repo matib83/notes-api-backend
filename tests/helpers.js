@@ -13,6 +13,11 @@ const initialNotes = [
     content: 'Sígueme en https://midu.tube',
     important: true,
     date: new Date()
+  },
+  {
+    content: 'Gracias totales :D',
+    important: true,
+    date: new Date()
   }
 ]
 

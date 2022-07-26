@@ -7,17 +7,19 @@ const { api, initialNotes, getAllContentFromNotes } = require('./helpers')
 
 beforeEach(async () => {
   await Note.deleteMany({})
+  console.log('beaforeEach')
 
-  const note1 = new Note(initialNotes[0])
-  await note1.save()
-
-  const note2 = new Note(initialNotes[1])
-  await note2.save()
+  initialNotes.forEach(async note => {
+    const noteObject = new Note(note)
+    await noteObject.save()
+    console.log('saved note')
+  })
 })
 
 // Como el test es asíncrono, debo hacer el famoso async, await: lo que le informo a node, que test se ejecute
 // pero que espere a que termine api para responder
 test('notes are returned as json', async () => {
+  console.log('first test')
   await api
     .get('/api/notes')
     .expect(200)
