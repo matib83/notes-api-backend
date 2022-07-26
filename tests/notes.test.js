@@ -9,9 +9,17 @@ beforeEach(async () => {
   await Note.deleteMany({})
   console.log('beaforeEach')
 
-  const notesObjects = initialNotes.map(note => new Note(note))
+  // Parallel (puedo tener errores en el test que controla la posicion de una nota, ya que no se puede asegurar
+  // que la nota se agregue en el orden que yo lo defino en helpers: initialNotes, ya que se hacen en paralelo)
+  /* const notesObjects = initialNotes.map(note => new Note(note))
   const promises = notesObjects.map(note => note.save())
-  await Promise.all(promises)
+  await Promise.all(promises) //cuando este método termina, significa que se cumplieron todas las promesas */
+
+  // sequential (para asegurar el orden definido, pero es mas lento)
+  for (const note of initialNotes) {
+    const notesObjects = new Note(note)
+    await notesObjects.save()
+  }
 })
 
 // Como el test es asíncrono, debo hacer el famoso async, await: lo que le informo a node, que test se ejecute
