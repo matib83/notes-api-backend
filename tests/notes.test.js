@@ -9,11 +9,9 @@ beforeEach(async () => {
   await Note.deleteMany({})
   console.log('beaforeEach')
 
-  initialNotes.forEach(async note => {
-    const noteObject = new Note(note)
-    await noteObject.save()
-    console.log('saved note')
-  })
+  const notesObjects = initialNotes.map(note => new Note(note))
+  const promises = notesObjects.map(note => note.save())
+  await Promise.all(promises)
 })
 
 // Como el test es asíncrono, debo hacer el famoso async, await: lo que le informo a node, que test se ejecute
