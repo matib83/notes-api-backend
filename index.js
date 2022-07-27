@@ -11,7 +11,7 @@ const notFound = require('./middleware/notFound.js')
 const handleErrors = require('./middleware/handleErrors.js')
 const notesRouter = require('./controllers/notes')
 
-const logger = require('./loggerMiddleware')
+const logger = require('./middleware/loggerMiddleware')
 
 app.use(cors()) //Permitimos que cualquier origen funcione en nuestra API
 app.use(express.json())
