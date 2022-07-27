@@ -9,6 +9,7 @@ const cors = require('cors')
 const Note = require('./models/Note')
 const notFound = require('./middleware/notFound.js')
 const handleErrors = require('./middleware/handleErrors.js')
+const notesRouter = require('./controllers/notes')
 
 const logger = require('./loggerMiddleware')
 
@@ -49,85 +50,7 @@ app.get('/', (request, response) => {        //Cuando nuestra aplicacion reciba 
     response.send('<h1>Hello Word<h1>')
 })
 
-//cambio el metodo de promesas por async, await
-app.get('/api/notes', async (request, response) => {       //Cuando nuestra aplicacion reciba un request desde el path general
-    const notes = await Note.find({})
-    response.json(notes)                        //Me resuelve el content type, el status, etc
-})
-
-app.get('/api/notes/:id', (request, response, next) => {  //Así puedo recuperar parámetros dinámicos del path o URL
-    const { id } = request.params                   // extraigo el ID del response (es un String)    
-    console.log({ id })
-
-    Note.findById(id)
-        .then(note => {
-            console.log({ note })
-            if (note) return response.json(note)
-            response.status(404).end()
-        })
-        .catch(next)                   //Hacemos que vaya al siguiente Middleware cuando se ejecute este tipo de error               
-})                                               // que sería por acceder a un lugar inválido y puede pasar en varios lugares
-
-//Ahora realizamos la peticion de PUT para modificar contenido
-app.put('/api/notes/:id', (request, response, next) => {
-    const { id } = request.params
-    const note = request.body
-
-    const newNoteInfo = {
-        content: note.content,
-        important: note.important
-    }
-
-    Note.findByIdAndUpdate(id, newNoteInfo, { new: true })
-        .then(result => {
-            response.json(result).status(204).end()
-        })
-        .catch(next)
-})
-
-// Recordar que por la barra de direcciones solo se pueden hacer GET para probar, 
-// en el caso que necesite realizar otras acciones debo utilizar las herramientas
-// como POSTMAN, INSOMNIA o REST de Visual Studio Code (hay que instalar aquí este último)
-app.delete('/api/notes/:id', async (request, response, next) => {
-    const { id } = request.params
-    await Note.findByIdAndDelete(id)
-    response.status(204).end()
-
-    // Antes utilizando promesas
-    // Note.findByIdAndDelete(id)
-    //     .then(() => response.status(204).end())
-    //     .catch(next)
-})
-
-//cambio el metodo de promesas por async, await
-app.post('/api/notes', async (request, response, next) => {
-    const note = request.body
-
-    if (!note || !note.content) {
-        return response.status(400).json({
-            error: 'note.content is missing'
-        })
-    }
-
-    const newNote = new Note({
-        content: note.content,
-        date: new Date().toISOString(),
-        important: typeof note.important !== 'undefined' ? note.important : false
-    })
-
-    // ******ANTES CON PROMESAS*******
-    // newNote.save().then(saveNote => {
-    //     response.status(201).json(saveNote)
-    // }).catch(next)
-
-    // AHORA CON ASYNC-AWAIT
-    try {
-        const saveNote = await newNote.save()
-        response.status(201).json(saveNote)
-    } catch (error) {
-        next(error)
-    }
-})
+app.use('/api/notes', notesRouter)
 
 app.use(notFound)
 
