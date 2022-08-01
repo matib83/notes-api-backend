@@ -39,7 +39,7 @@ Sentry.init({
 // TracingHandler creates a trace for every incoming request
 //app.use(Sentry.Handlers.tracingHandler());
 
-//app.use(logger)
+app.use(logger)
 
 // const app = http.createServer((request, response) => {      //Callback, funcion que se ejecuta cada vez que
 //     response.writeHead(200, { 'Content-Type':'application/json'}) //le llegue un request (petición al servidor)
