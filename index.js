@@ -6,10 +6,10 @@ const Tracing = require("@sentry/tracing");
 const express = require('express')    //Importar el modulo http utilizando Common.JS
 const app = express()
 const cors = require('cors')
-const Note = require('./models/Note')
 const notFound = require('./middleware/notFound.js')
 const handleErrors = require('./middleware/handleErrors.js')
 const notesRouter = require('./controllers/notes')
+const usersRouter = require('./controllers/users')
 
 const logger = require('./middleware/loggerMiddleware')
 
@@ -35,11 +35,11 @@ Sentry.init({
 
 // RequestHandler creates a separate execution context using domains, so that every
 // transaction/span/breadcrumb is attached to its own Hub instance
-app.use(Sentry.Handlers.requestHandler());
+//app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
-app.use(Sentry.Handlers.tracingHandler());
+//app.use(Sentry.Handlers.tracingHandler());
 
-app.use(logger)
+//app.use(logger)
 
 // const app = http.createServer((request, response) => {      //Callback, funcion que se ejecuta cada vez que
 //     response.writeHead(200, { 'Content-Type':'application/json'}) //le llegue un request (petición al servidor)
@@ -51,6 +51,8 @@ app.get('/', (request, response) => {        //Cuando nuestra aplicacion reciba 
 })
 
 app.use('/api/notes', notesRouter)
+
+app.use('/api/users', usersRouter)
 
 app.use(notFound)
 
