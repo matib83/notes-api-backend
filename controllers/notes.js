@@ -1,5 +1,6 @@
 const notesRouter = require('express').Router()
 const Note = require('../models/Note')
+const User = require('../models/User')
 
 //cambio el metodo de promesas por async, await
 notesRouter.get('/', async (request, response) => {  //Cuando nuestra aplicacion reciba un request desde el path general
@@ -53,19 +54,26 @@ notesRouter.delete('/:id', async (request, response, next) => {
 
 //cambio el metodo de promesas por async, await
 notesRouter.post('/', async (request, response, next) => {
-  const note = request.body
+  const {
+    content,
+    important = false,
+    userId
+  } = request.body
 
-  if (!note || !note.content) {
+  const user = await User.findById(userId)
+
+  if (!content) {
     return response.status(400).json({
-      error: 'note.content is missing'
+      error: 'required "content" fild is missing'
     })
   }
 
   const newNote = new Note({
-    content: note.content,
+    content: content,
     date: new Date().toISOString(),
-    important: typeof note.important !== 'undefined' ? note.important : false
-  })
+    important,
+    user: user._id  // Cuando se guarde en la BD, el id se almacena con la barra baja, sino, 
+  })                // debo hacer: user.toJSON().id para acceder al objeto id sin barra baja
 
   // ******ANTES CON PROMESAS*******
   // newNote.save().then(saveNote => {
@@ -74,8 +82,12 @@ notesRouter.post('/', async (request, response, next) => {
 
   // AHORA CON ASYNC-AWAIT
   try {
-    const saveNote = await newNote.save()
-    response.status(201).json(saveNote)
+    const savedNote = await newNote.save()
+
+    user.notes = user.notes.concat(savedNote._id)
+    await user.save()
+
+    response.status(201).json(savedNote)
   } catch (error) {
     next(error)
   }

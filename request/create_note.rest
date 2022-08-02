@@ -2,8 +2,9 @@ POST http://localhost:3001/api/notes
 Content-type: application/json
 
 {
-    "content": "Nota para borrar",
-    "important": true
+    "content": "Nota que ahora es referenciada a un Usuario",
+    "important": true,
+    "userId": "62e950d32faf49e04387f987"
 }
 
 ###             //Las almoadillas son para generar dstintas APIS con fallas para probar errores
