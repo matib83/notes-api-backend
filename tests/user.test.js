@@ -44,7 +44,7 @@ describe('creating a new user', () => {
     const usersAtStart = await getUsers()
 
     const newUser = {
-      username: 'matib83',
+      username: 'matiroot',
       name: 'Matias',
       password: 'abc123'
     }
@@ -55,7 +55,7 @@ describe('creating a new user', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('`username` to be unique')
+    expect(result.body.errors.username.message).toContain('`username` to be unique')
 
     const userAtEnd = await getUsers()
     expect(userAtEnd).toHaveLength(usersAtStart.length)

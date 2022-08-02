@@ -1,8 +1,13 @@
+const uniqueValidator = require('mongoose-unique-validator')
 const { Schema, model } = require('mongoose')
 
 // construimos un esquema para utilizar la base de datos (no depende de la base de datos como en sql)
 const userSchema = new Schema({
-  username: String,
+  username: {
+    type: String,
+    required: true,
+    unique: true
+  },
   name: String,
   passwordHash: String,
   notes: [{
@@ -20,6 +25,8 @@ userSchema.set('toJSON', {
     delete returnedObject.passwordHash
   }
 })
+
+userSchema.plugin(uniqueValidator)
 
 //construimos un modelo
 const User = model('User', userSchema)
