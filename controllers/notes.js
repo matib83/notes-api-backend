@@ -4,7 +4,10 @@ const User = require('../models/User')
 
 //cambio el metodo de promesas por async, await
 notesRouter.get('/', async (request, response) => {  //Cuando nuestra aplicacion reciba un request desde el path general
-  const notes = await Note.find({})
+  const notes = await Note.find({}).populate('user', {
+    username: 1,
+    name: 1
+  })
   response.json(notes)                                //Me resuelve el content type, el status, etc
 })
 
