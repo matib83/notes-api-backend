@@ -38,6 +38,29 @@ describe('creating a new user', () => {
     expect(usernames).toContain(newUser.username)
   })
 
+  // HAGO TDD, es decir, primero creo el test que controle una nueva funcionalidad, lo ejecuto y 
+  // comienzo a desarrollar la funcionalidad siendo controlado por el test
+  test('creation fails with proper statuscode and message if username is already taken', async () => {
+    const usersAtStart = await getUsers()
+
+    const newUser = {
+      username: 'matib83',
+      name: 'Matias',
+      password: 'abc123'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('`username` to be unique')
+
+    const userAtEnd = await getUsers()
+    expect(userAtEnd).toHaveLength(usersAtStart.length)
+  })
+
   afterAll(() => {
     mongoose.connection.close()
     server.close()
