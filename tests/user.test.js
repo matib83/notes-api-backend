@@ -3,7 +3,7 @@ const { server } = require('../index')
 
 const bcrypt = require('bcrypt')
 const User = require('../models/User')
-const { api } = require('./helpers')  // para poder utilizar las api del index.js
+const { api, getUsers } = require('./helpers')  // para poder utilizar las api del index.js
 
 describe('creating a new user', () => {
   beforeEach(async () => {
@@ -16,8 +16,7 @@ describe('creating a new user', () => {
   })
 
   test('works as expected creating a fresh username', async () => {
-    const usersDB = await User.find({})
-    const usersAtStart = usersDB.map(user => user.toJSON())
+    const usersAtStart = await getUsers() //Optimizo el codigo ytilizanco helpers, pero no olvidar que es asincrono
 
     const newUser = {
       username: 'matib83',
@@ -31,8 +30,7 @@ describe('creating a new user', () => {
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const usersDBAfter = await User.find({})
-    const userAtEnd = usersDBAfter.map(user => user.toJSON())
+    const userAtEnd = await getUsers()  //Optimizo el codigo, pero no olvidar que es asincrono
 
     expect(userAtEnd).toHaveLength(usersAtStart.length + 1)
 
