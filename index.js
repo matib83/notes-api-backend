@@ -10,6 +10,7 @@ const notFound = require('./middleware/notFound.js')
 const handleErrors = require('./middleware/handleErrors.js')
 const notesRouter = require('./controllers/notes')
 const usersRouter = require('./controllers/users')
+const loginRouter = require('./controllers/login')
 
 const logger = require('./middleware/loggerMiddleware')
 
@@ -53,6 +54,8 @@ app.get('/', (request, response) => {        //Cuando nuestra aplicacion reciba 
 app.use('/api/notes', notesRouter)
 
 app.use('/api/users', usersRouter)
+
+app.use('/api/login', loginRouter)
 
 app.use(notFound)
 

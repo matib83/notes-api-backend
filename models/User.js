@@ -1,6 +1,7 @@
 const uniqueValidator = require('mongoose-unique-validator')
 const { Schema, model } = require('mongoose')
 
+//console.log('se ejecuta user.js') //Esto sirve para saber si estoy ejecutando este codigo una vez (que es lo correcto)
 // construimos un esquema para utilizar la base de datos (no depende de la base de datos como en sql)
 const userSchema = new Schema({
   username: {
