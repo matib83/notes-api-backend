@@ -1,6 +1,8 @@
 const notesRouter = require('express').Router()
+const jwt = require('jsonwebtoken')
 const Note = require('../models/Note')
 const User = require('../models/User')
+
 
 //cambio el metodo de promesas por async, await
 notesRouter.get('/', async (request, response) => {  //Cuando nuestra aplicacion reciba un request desde el path general
@@ -60,9 +62,35 @@ notesRouter.post('/', async (request, response, next) => {
   const {
     content,
     important = false,
-    userId
   } = request.body
 
+  const authorization = request.get('authorization')
+  let token = ''
+
+  //console.log({ authorization })
+
+  if (authorization && authorization.toLowerCase().startsWith('bearer')) {
+    token = authorization.substring(7)
+  }
+
+  // try {
+  //   const decodedToken = jwt.verify(token, process.env.SECRET)
+  // } catch (error) {
+  //   next(error)
+  // }
+  console.log({ token })
+  let decodedToken = {}
+  try {
+    decodedToken = jwt.verify(token, process.env.SECRET)
+  } catch (error) {
+    next(error)
+    return
+  }
+
+  console.log(token, decodedToken)
+  console.log("Con try-catch pasa, sino, no pasa")
+
+  const { id: userId } = decodedToken
   const user = await User.findById(userId)
 
   if (!content) {

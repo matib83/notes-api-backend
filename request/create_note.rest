@@ -1,10 +1,10 @@
 POST http://localhost:3001/api/notes 
 Content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyZTk1MGQzMmZhZjQ5ZTA0Mzg3Zjk4NyIsInVzZXJuYW1lIjoibWF0aWI4MyIsImlhdCI6MTY1OTYzNDgxM30.NTFvIqDCgItbGYIHHRXToQE8oKP815YnTlS6fgkPeKU
 
 {
-    "content": "Nota que ahora es referenciada a un Usuario",
-    "important": true,
-    "userId": "62e950d32faf49e04387f987"
+    "content": "funciona?",
+    "important": true
 }
 
 ###             //Las almoadillas son para generar dstintas APIS con fallas para probar errores

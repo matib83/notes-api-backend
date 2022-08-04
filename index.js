@@ -65,7 +65,7 @@ app.use(Sentry.Handlers.errorHandler());
 //Ejemplo de lo que es un MIDDLEWARE (entra cuando no se ejecuta ninguna ruta de arriba)
 app.use(handleErrors)
 
-const PORT = process.env.PORT                        //puerto por donde escucha mi servidor
+const PORT = process.env.PORT || 3001               //puerto por donde escucha mi servidor
 const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)   //Como el servidor en Express se inicia de manera asincrona, 
 })                                                  //quiero ejecutar el console.log cuando se termine de levantar el servidor
