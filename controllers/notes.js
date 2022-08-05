@@ -73,12 +73,8 @@ notesRouter.post('/', async (request, response, next) => {
     token = authorization.substring(7)
   }
 
-  // try {
-  //   const decodedToken = jwt.verify(token, process.env.SECRET)
-  // } catch (error) {
-  //   next(error)
-  // }
   console.log({ token })
+
   let decodedToken = {}
   try {
     decodedToken = jwt.verify(token, process.env.SECRET)
