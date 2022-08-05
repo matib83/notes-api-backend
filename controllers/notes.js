@@ -1,8 +1,7 @@
 const notesRouter = require('express').Router()
-const jwt = require('jsonwebtoken')
 const Note = require('../models/Note')
 const User = require('../models/User')
-
+const userExtractor = require('../middleware/userExtractor')
 
 //cambio el metodo de promesas por async, await
 notesRouter.get('/', async (request, response) => {  //Cuando nuestra aplicacion reciba un request desde el path general
@@ -27,7 +26,7 @@ notesRouter.get('/:id', (request, response, next) => {  //Así puedo recuperar p
 })
 
 //Ahora realizamos la peticion de PUT para modificar contenido
-notesRouter.put('/:id', (request, response, next) => {
+notesRouter.put('/:id', userExtractor, (request, response, next) => {
   const { id } = request.params
   const note = request.body
 
@@ -46,7 +45,7 @@ notesRouter.put('/:id', (request, response, next) => {
 // Recordar que por la barra de direcciones solo se pueden hacer GET para probar, 
 // en el caso que necesite realizar otras acciones debo utilizar las herramientas
 // como POSTMAN, INSOMNIA o REST de Visual Studio Code (hay que instalar aquí este último)
-notesRouter.delete('/:id', async (request, response, next) => {
+notesRouter.delete('/:id', userExtractor, async (request, response, next) => {
   const { id } = request.params
   await Note.findByIdAndDelete(id)
   response.status(204).end()
@@ -58,35 +57,15 @@ notesRouter.delete('/:id', async (request, response, next) => {
 })
 
 //cambio el metodo de promesas por async, await
-notesRouter.post('/', async (request, response, next) => {
+notesRouter.post('/', userExtractor, async (request, response, next) => {
   const {
     content,
     important = false,
   } = request.body
 
-  const authorization = request.get('authorization')
-  let token = ''
+  // sacar userId de request
+  const { userId } = request
 
-  //console.log({ authorization })
-
-  if (authorization && authorization.toLowerCase().startsWith('bearer')) {
-    token = authorization.substring(7)
-  }
-
-  console.log({ token })
-
-  let decodedToken = {}
-  try {
-    decodedToken = jwt.verify(token, process.env.SECRET)
-  } catch (error) {
-    next(error)
-    return
-  }
-
-  console.log(token, decodedToken)
-  console.log("Con try-catch pasa, sino, no pasa")
-
-  const { id: userId } = decodedToken
   const user = await User.findById(userId)
 
   if (!content) {
