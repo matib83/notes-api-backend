@@ -53,11 +53,6 @@ notesRouter.delete('/:id', userExtractor, async (request, response, next) => {
   } catch (error) {
     next(error)
   }
-
-  // Antes utilizando promesas
-  // Note.findByIdAndDelete(id)
-  //     .then(() => response.status(204).end())
-  //     .catch(next)
 })
 
 //cambio el metodo de promesas por async, await
@@ -85,12 +80,6 @@ notesRouter.post('/', userExtractor, async (request, response, next) => {
     user: user._id  // Cuando se guarde en la BD, el id se almacena con la barra baja, sino, 
   })                // debo hacer: user.toJSON().id para acceder al objeto id sin barra baja
 
-  // ******ANTES CON PROMESAS*******
-  // newNote.save().then(saveNote => {
-  //     response.status(201).json(saveNote)
-  // }).catch(next)
-
-  // AHORA CON ASYNC-AWAIT
   try {
     const savedNote = await newNote.save()
 
