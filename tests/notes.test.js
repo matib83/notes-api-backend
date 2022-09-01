@@ -30,13 +30,13 @@ describe('GET all notes', () => {
   })
 
   test('there are two notes', async () => {
-    const response = await api.get('/api/notes')
+    const { response } = await getAllContentFromNotes()
 
     expect(response.body).toHaveLength(initialNotes.length)
   })
 
   test('The first note is about learning', async () => {
-    const response = await api.get('/api/notes')
+    const { response } = await getAllContentFromNotes()
 
     expect(response.body[0].content).toBe('Aprendiendo Fullstack JS')
   })
