@@ -4,16 +4,16 @@ module.exports = (request, response, next) => {
   const authorization = request.get('authorization')
   let token = ''
 
-  //console.log({ authorization })
+  // console.log({ authorization })
 
   if (authorization && authorization.toLowerCase().startsWith('bearer')) {
     token = authorization.substring(7)
   }
 
-  console.log({ token })
+  // console.log({ token })
 
   const decodedToken = jwt.verify(token, process.env.SECRET)
-  console.log({ decodedToken })
+  // console.log({ decodedToken })
 
   // if (!token || !decodedToken.id) {
   //   console.log('entro aqui 2')

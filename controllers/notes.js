@@ -14,11 +14,11 @@ notesRouter.get('/', async (request, response) => {  //Cuando nuestra aplicacion
 
 notesRouter.get('/:id', (request, response, next) => {  //Así puedo recuperar parámetros dinámicos del path o URL
   const { id } = request.params                   // extraigo el ID del response (es un String)    
-  console.log({ id })
+  // console.log({ id })
 
   Note.findById(id)
     .then(note => {
-      console.log({ note })
+      // console.log({ note })
       if (note) return response.json(note)
       response.status(404).end()
     })
@@ -47,8 +47,12 @@ notesRouter.put('/:id', userExtractor, (request, response, next) => {
 // como POSTMAN, INSOMNIA o REST de Visual Studio Code (hay que instalar aquí este último)
 notesRouter.delete('/:id', userExtractor, async (request, response, next) => {
   const { id } = request.params
-  await Note.findByIdAndDelete(id)
-  response.status(204).end()
+  try {
+    await Note.findByIdAndDelete(id)
+    response.status(204).end()
+  } catch (error) {
+    next(error)
+  }
 
   // Antes utilizando promesas
   // Note.findByIdAndDelete(id)

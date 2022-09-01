@@ -16,7 +16,7 @@ describe('creating a new user', () => {
   })
 
   test('works as expected creating a fresh username', async () => {
-    const usersAtStart = await getUsers() //Optimizo el codigo ytilizanco helpers, pero no olvidar que es asincrono
+    const usersAtStart = await getUsers() //Optimizo el codigo y uilizo helpers, pero no olvidar que es asincrono
 
     const newUser = {
       username: 'matib83',

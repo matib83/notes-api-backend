@@ -28,14 +28,29 @@ const getAllContentFromNotes = async () => {
     response
   }
 }
+
 const getUsers = async () => {
   const usersDB = await User.find({})
   return usersDB.map(user => user.toJSON())
+}
+
+const loginUsers = async () => {
+  const logUser = {
+    username: 'matiroot',
+    password: 'pswd'
+  }
+  // console.log(" ENTRO A METODO LOGUEO")
+  const response = await api.post('/api/login').send(logUser)
+  const { token } = response.body
+  //console.log({ token })
+
+  return token
 }
 
 module.exports = {
   api,
   initialNotes,
   getAllContentFromNotes,
-  getUsers
+  getUsers,
+  loginUsers
 }

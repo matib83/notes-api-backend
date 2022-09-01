@@ -2,8 +2,7 @@ const mongoose = require('mongoose')
 const { server } = require('../index')
 
 const Note = require('../models/Note')
-const { api, initialNotes, getAllContentFromNotes } = require('./helpers')
-
+const { api, initialNotes, getAllContentFromNotes, loginUsers } = require('./helpers')
 
 beforeEach(async () => {
   await Note.deleteMany({})
@@ -50,7 +49,9 @@ describe('GET all notes', () => {
 })
 
 describe('create a note', () => {
+
   test('is possible with a valid note', async () => {
+    const token = await loginUsers()
     const newNote = {
       content: 'Proximamente async/await',
       important: true
@@ -59,6 +60,7 @@ describe('create a note', () => {
     await api
       .post('/api/notes')
       .send(newNote)
+      .set('Authorization', `Bearer ${token}`)
       .expect(201)
       .expect('Content-type', /application\/json/)
 
@@ -69,6 +71,7 @@ describe('create a note', () => {
   })
 
   test('is not possible with an invalid note', async () => {
+    const token = await loginUsers()
     const newNote = {
       important: true
     }
@@ -76,6 +79,7 @@ describe('create a note', () => {
     await api
       .post('/api/notes')
       .send(newNote)
+      .set('Authorization', `Bearer ${token}`)
       .expect(400)
 
     const response = await api.get('/api/notes')
@@ -84,31 +88,46 @@ describe('create a note', () => {
   })
 })
 
+describe('delete a note with token root', () => {
+  test('can be deleted', async () => {
+    const token = await loginUsers()
+    const { response: firstResponse } = await getAllContentFromNotes()
+    const { body: notes } = firstResponse
+    const noteToDelete = notes[0] //Otra forma: const [noteToDelete] = notes
 
+    await api
+      .delete(`/api/notes/${noteToDelete.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(204)
 
-test('a note can be deleted', async () => {
-  const { response: firstResponse } = await getAllContentFromNotes()
-  const { body: notes } = firstResponse
-  const noteToDelete = notes[0] //Otra forma: const [noteToDelete] = notes
+    const { contents, response: secondResponse } = await getAllContentFromNotes()
 
-  await api
-    .delete(`/api/notes/${noteToDelete.id}`)
-    .expect(204)
+    expect(secondResponse.body).toHaveLength(initialNotes.length - 1)
+    expect(contents).not.toContain(noteToDelete.content)
+  })
 
-  const { contents, response: secondResponse } = await getAllContentFromNotes()
+  test('but do not exist, can not be deleted', async () => {
+    const token = await loginUsers()
+    await api
+      .delete(`/api/notes/1234a5678901234a56a789aa`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(204)
 
-  expect(secondResponse.body).toHaveLength(initialNotes.length - 1)
-  expect(contents).not.toContain(noteToDelete.content)
-})
+    const { response } = await getAllContentFromNotes()
+    expect(response.body).toHaveLength(initialNotes.length)
+  })
 
-test('a note that do not exist can not be deleted', async () => {
-  await api
-    .delete(`/api/notes/1234`)
-    .expect(400)
+  test('but malformed id, can not be deleted', async () => {
+    const token = await loginUsers()
 
-  const { response } = await getAllContentFromNotes()
+    await api
+      .delete(`/api/notes/1234`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(400)
 
-  expect(response.body).toHaveLength(initialNotes.length)
+    const { response } = await getAllContentFromNotes()
+    expect(response.body).toHaveLength(initialNotes.length)
+  })
 })
 
 afterAll(() => {
